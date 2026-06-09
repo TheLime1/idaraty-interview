@@ -2,8 +2,6 @@
 
 Static BI-style dashboard for analyzing Tunisair delays at Tunis-Carthage airport from public airport pages.
 
-The project intentionally avoids a database and backend. The scraper produces CSV/JSON files once, and the dashboard reads those static files in the browser. This makes the site easy to host for free on GitHub Pages.
-
 ## Stack
 
 - Python scraper with `requests` and `beautifulsoup4`
