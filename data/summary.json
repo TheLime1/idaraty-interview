@@ -1,0 +1,19 @@
+{
+  "generated_at": "2026-06-09T16:23:32Z",
+  "scrape_start": "2020-01-01",
+  "scrape_end": "2026-06-09",
+  "source": "https://www.aeroport-de-tunis-carthage.com",
+  "airline": "TUNISAIR",
+  "airport": "Tunis-Carthage",
+  "total_flights": 95152,
+  "completed_flights": 94330,
+  "cancelled_flights": 700,
+  "unknown_statuses": 122,
+  "avg_delay_minutes": 52.1,
+  "median_delay_minutes": 28.0,
+  "max_delay_minutes": 720,
+  "delayed_15_count": 61662,
+  "delayed_15_pct": 65.4,
+  "severe_60_count": 26386,
+  "severe_60_pct": 28.0
+}

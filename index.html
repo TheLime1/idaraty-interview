@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Static BI-style dashboard for Tunisair delays at Tunis-Carthage airport."
+    />
+    <title>Tunisair Delay Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@500;600;700&family=Fira+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/styles.css" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/echarts@6.1.0/dist/echarts.min.js"
+      defer
+    ></script>
+    <script src="assets/app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#dashboard">Skip to dashboard</a>
+
+    <header class="page-header">
+      <div>
+        <p class="eyebrow">Tunis-Carthage airport</p>
+        <h1>Tunisair Delay Dashboard</h1>
+        <p class="header-copy">
+          Historical arrival and departure performance from public airport pages.
+        </p>
+      </div>
+      <div class="header-actions" aria-label="Data actions">
+        <a class="button button-secondary" href="data/flights.csv">Download CSV</a>
+        <a
+          class="button button-primary"
+          href="https://www.aeroport-de-tunis-carthage.com/"
+          rel="noreferrer"
+          target="_blank"
+        >
+          Source
+        </a>
+      </div>
+    </header>
+
+    <main id="dashboard" class="dashboard" aria-live="polite">
+      <section class="toolbar" aria-label="Dashboard filters">
+        <div class="filter-field">
+          <label for="yearFilter">Year</label>
+          <select id="yearFilter"></select>
+        </div>
+        <div class="filter-field">
+          <label for="directionFilter">Direction</label>
+          <select id="directionFilter">
+            <option value="all">All directions</option>
+            <option value="arrival">Arrivals</option>
+            <option value="departure">Departures</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <label for="thresholdFilter">Delay threshold</label>
+          <select id="thresholdFilter">
+            <option value="15">Over 15 min</option>
+            <option value="30">Over 30 min</option>
+            <option value="60">Over 60 min</option>
+          </select>
+        </div>
+        <button id="resetFilters" class="button button-secondary" type="button">Reset</button>
+      </section>
+
+      <section class="meta-strip" aria-label="Dataset status">
+        <span id="datasetRange">Loading data range...</span>
+        <span id="datasetCount">Loading flights...</span>
+        <span id="datasetUpdated">Loading update time...</span>
+      </section>
+
+      <section class="kpi-grid" aria-label="Key performance indicators">
+        <article class="kpi-card">
+          <span class="kpi-label">Flights</span>
+          <strong id="kpiFlights">-</strong>
+          <small id="kpiCompleted">- completed</small>
+        </article>
+        <article class="kpi-card">
+          <span class="kpi-label">Average Delay</span>
+          <strong id="kpiAverage">-</strong>
+          <small id="kpiMedian">- median</small>
+        </article>
+        <article class="kpi-card">
+          <span class="kpi-label">Delayed</span>
+          <strong id="kpiDelayed">-</strong>
+          <small id="kpiDelayedCount">- flights</small>
+        </article>
+        <article class="kpi-card">
+          <span class="kpi-label">Severe Delay</span>
+          <strong id="kpiSevere">-</strong>
+          <small id="kpiSevereCount">- over 60 min</small>
+        </article>
+        <article class="kpi-card">
+          <span class="kpi-label">Cancelled/Unknown</span>
+          <strong id="kpiIssues">-</strong>
+          <small id="kpiUnknown">- unknown</small>
+        </article>
+      </section>
+
+      <section class="chart-grid" aria-label="Delay charts">
+        <article class="panel panel-wide">
+          <div class="panel-header">
+            <div>
+              <h2>Monthly Delay Trend</h2>
+              <p>Average delay in minutes by month.</p>
+            </div>
+          </div>
+          <div id="trendChart" class="chart" role="img" aria-label="Monthly delay trend chart"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Arrivals vs Departures</h2>
+              <p>Average delay and delayed flight rate.</p>
+            </div>
+          </div>
+          <div
+            id="directionChart"
+            class="chart"
+            role="img"
+            aria-label="Arrival and departure comparison chart"
+          ></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Worst Routes</h2>
+              <p>Routes with the highest average delay.</p>
+            </div>
+          </div>
+          <div id="routeChart" class="chart" role="img" aria-label="Worst routes chart"></div>
+        </article>
+
+        <article class="panel panel-wide">
+          <div class="panel-header">
+            <div>
+              <h2>Weekday and Hour Pattern</h2>
+              <p>Average delay by scheduled local time.</p>
+            </div>
+          </div>
+          <div id="heatmapChart" class="chart chart-heatmap" role="img" aria-label="Delay heatmap"></div>
+        </article>
+      </section>
+
+      <section class="panel table-panel" aria-label="Ranked delay table">
+        <div class="panel-header table-header">
+          <div>
+            <h2>Ranked Performance</h2>
+            <p>Compare routes or individual flight numbers.</p>
+          </div>
+          <div class="table-controls">
+            <div class="segmented" role="group" aria-label="Table mode">
+              <button class="segment is-active" type="button" data-table-mode="routes">Routes</button>
+              <button class="segment" type="button" data-table-mode="flights">Flight numbers</button>
+            </div>
+            <label class="sr-only" for="tableSearch">Search table</label>
+            <input id="tableSearch" type="search" placeholder="Search route or flight" />
+            <label class="sr-only" for="tableSort">Sort table</label>
+            <select id="tableSort">
+              <option value="avg_delay">Worst average delay</option>
+              <option value="delayed_pct">Highest delayed rate</option>
+              <option value="total_flights">Most flights</option>
+              <option value="max_delay">Worst single delay</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Rank</th>
+                <th scope="col" id="entityHeader">Route</th>
+                <th scope="col">Direction</th>
+                <th scope="col">Flights</th>
+                <th scope="col">Avg delay</th>
+                <th scope="col">Delayed</th>
+                <th scope="col">Severe</th>
+                <th scope="col">Worst</th>
+              </tr>
+            </thead>
+            <tbody id="rankedTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <p id="statusMessage" class="status-message" role="status"></p>
+    </main>
+  </body>
+</html>
